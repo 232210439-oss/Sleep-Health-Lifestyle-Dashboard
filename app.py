@@ -1,6 +1,3 @@
-
-
-
 # app.py — Final build (primary charts + exact insights text)
 # -----------------------------------------------------------
 # - Loads primary + bundled second dataset (no upload UI)
