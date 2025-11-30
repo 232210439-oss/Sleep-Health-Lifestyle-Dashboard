@@ -1,16 +1,13 @@
-# app.py — Final build (primary charts + exact insights text)
-# -----------------------------------------------------------
-# - Loads primary + bundled second dataset (no upload UI)
-# - All charts live under "Visualizations" only
-# - Second dataset quick charts: 1,2,3,5 (no PA vs Quality)
-# - Insights under each chart EXACTLY as provided
 
+
+# app.py — Final build
+# -----------------------------------------------------------
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import os
-import random  # <-- NEW
+import random  # for star background
 
 # ------------------ Page Setup ------------------
 st.set_page_config(page_title="Sleep Health & Lifestyle Dashboard",
@@ -24,7 +21,6 @@ def render_night_sky(star_count: int = 230, seed: int = 7):
     """
     random.seed(seed)
 
-    # Base styles (background + stacking so content stays clickable)
     css = """
     <style>
       .stApp {
@@ -71,10 +67,11 @@ def render_night_sky(star_count: int = 230, seed: int = 7):
             f'animation-duration:{dur_s};animation-delay:{delay_s};'
             f'--op-min:{op_min};"></span>'
         )
+
     field_html = f'<div id="starfield">{"".join(stars_html_parts)}</div>'
     st.markdown(field_html, unsafe_allow_html=True)
 
-# Render the background before any visible content
+# Render background before any visible content
 render_night_sky()
 
 st.title("Sleep Health & Lifestyle Dashboard")
@@ -107,7 +104,7 @@ def load_data(path: str) -> pd.DataFrame:
 
     # optional: split blood pressure
     if "Blood Pressure" in df.columns:
-        bp = df["Blood Pressure"].str.extract(r"(?P<Systolic>\\d+)\\s*/\\s*(?P<Diastolic>\\d+)")
+        bp = df["Blood Pressure"].str.extract(r"(?P<Systolic>\d+)\s*/\s*(?P<Diastolic>\d+)")
         df[["Systolic", "Diastolic"]] = bp.astype("float")
 
     # derived flag
@@ -217,6 +214,13 @@ tab_overview, tab_viz, tab_table, tab_second, tab_end = st.tabs(
 
 # ================== OVERVIEW ==================
 with tab_overview:
+    # About this dashboard (NEW)
+    st.subheader("About this Dashboard")
+    st.markdown(
+        "- This dashboard analyzes the impact of daily habits on sleep quality using various metrics like Physical Activity, Caffeine Intake, Stress Levels, Age, and Gender.\n\n"
+        "- Use the filters to explore how different activities affect your sleep by selecting different genders and activity types."
+    )
+
     st.subheader("KPIs")
     k1, k2, k3, k4, k5, k6 = st.columns(6)
     k1.metric("Avg Sleep (h)", f"{fdf['Sleep Duration'].mean():.2f}")
@@ -481,21 +485,22 @@ with tab_second:
 # ================== CONCLUSION ==================
 with tab_end:
     st.subheader("Conclusion")
+
+    # --- Key Conclusions ---
+    st.markdown("**Key Conclusions:**")
     st.markdown(
-        "**Key Conclusions:**\n"
-        "* Study Hours and Sleep Duration:\n"
-        "A weak negative correlation exists. More study hours slightly reduce sleep duration.\n\n"
-        "* Caffeine Intake and Sleep Duration:\n"
-        "Males tend to sleep longer with higher caffeine intake, while females sleep less as caffeine intake increases.\n"
-        "* Physical Activity and Sleep Quality:\n"
-        "Physical activity improves sleep quality, especially for females.\n"
-        "* Age and Sleep Duration:\n"
-        "No clear correlation between age and sleep duration.\n"
-        "* Stress Level and Sleep Duration:\n"
-        "Higher stress levels are linked to shorter sleep durations.\n\n"
-        "**Recommendations:**\n"
-        "1- Promote Better Time Management: Encourage students to balance study and sleep\n"
-        "2- Monitor Caffeine Intake: Educate students, especially females, on caffeine’s impact on sleep.\n"
-        "3- Encourage Regular Physical Activity: Foster exercise programs to enhance sleep quality.\n"
-        "4- Implement Stress Management Programs: Help students manage stress to improve sleep duration."
+        "- **Study Hours and Sleep Duration:** A weak negative correlation exists. More study hours slightly reduce sleep duration.\n"
+        "- **Caffeine Intake and Sleep Duration:** Males tend to sleep longer with higher caffeine intake, while females sleep less as caffeine intake increases.\n"
+        "- **Physical Activity and Sleep Quality:** Physical activity improves sleep quality, especially for females.\n"
+        "- **Age and Sleep Duration:** No clear correlation between age and sleep duration.\n"
+        "- **Stress Level and Sleep Duration:** Higher stress levels are linked to shorter sleep durations."
+    )
+
+    # --- Recommendations ---
+    st.markdown("**Recommendations:**")
+    st.markdown(
+        "1. Promote Better Time Management: Encourage students to balance study and sleep.\n"
+        "2. Monitor Caffeine Intake: Educate students, especially females, on caffeine’s impact on sleep.\n"
+        "3. Encourage Regular Physical Activity: Foster exercise programs to enhance sleep quality.\n"
+        "4. Implement Stress Management Programs: Help students manage stress to improve sleep duration."
     )
